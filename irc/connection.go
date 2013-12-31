@@ -32,6 +32,11 @@ func Dial(address, nickname string) Conn {
 	}
 
 	conn.conn = tp
+	// TODO send password
+	conn.Raw("NICK %s", nickname)
+	// TODO use username and realname here
+	conn.Raw("USER %s 0 * :%s", nickname, nickname, nickname)
+
 	return conn
 }
 
