@@ -7,13 +7,22 @@ import (
 // Channel represents an IRC channel
 type Channel struct {
 	Name, topic string
+	users       *Users
 
 	sync.RWMutex
 }
 
 // NewChannel creates a new Channel named 'name'
 func NewChannel(name string) *Channel {
-	return &Channel{Name: name}
+	return &Channel{
+		Name:  name,
+		users: &Users{m: make(map[string]*User)},
+	}
+}
+
+// Users returns the user collection for the channel
+func (c *Channel) Users() *Users {
+	return c.Users()
 }
 
 // Topic sets the channels' topic to 't'
