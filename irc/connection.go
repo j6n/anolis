@@ -53,12 +53,26 @@ func (c *Connection) WaitForClose() <-chan struct{} {
 	return c.done
 }
 
-func (c *Connection) Join(room string)            {}
-func (c *Connection) Part(room string)            {}
-func (c *Connection) Kick(room, user, msg string) {}
-func (c *Connection) Nick(nick string)            {}
-func (c *Connection) Quit(msg string)             {}
+// Join sends the join command for room
+func (c *Connection) Join(room string) {}
 
-func (c *Connection) Raw(f string, args ...interface{})     {}
-func (c *Connection) Privmsg(f string, args ...interface{}) {}
-func (c *Connection) Notice(f string, args ...interface{})  {}
+// Part sends the part command for room
+func (c *Connection) Part(room string) {}
+
+// Kick sends the kick command for user on room with msg
+func (c *Connection) Kick(room, user, msg string) {}
+
+// Nick sends the nick command with the new nick
+func (c *Connection) Nick(nick string) {}
+
+// Quit sends the quit command with msg
+func (c *Connection) Quit(msg string) {}
+
+// Raw sends a raw message, f, formatted with args
+func (c *Connection) Raw(f string, args ...interface{}) {}
+
+// Privmsg sends a private message, f, formatted with args to t
+func (c *Connection) Privmsg(t, f string, args ...interface{}) {}
+
+// Notice sends a notice message, f, formatted with args to t
+func (c *Connection) Notice(t, f string, args ...interface{}) {}

@@ -9,6 +9,6 @@ type Commands interface {
 	Quit(msg string)
 
 	Raw(f string, args ...interface{})
-	Privmsg(f string, args ...interface{})
-	Notice(f string, args ...interface{})
+	Privmsg(t, f string, args ...interface{})
+	Notice(t, f string, args ...interface{})
 }
