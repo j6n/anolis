@@ -12,6 +12,8 @@ type Connection struct {
 	address  string
 	nickname string
 
+	ev *Events
+
 	conn *textproto.Conn
 	once sync.Once
 	done chan struct{}
@@ -23,7 +25,9 @@ func Dial(address, nickname string) Conn {
 	conn := &Connection{
 		address:  address,
 		nickname: nickname,
-		done:     make(chan struct{}),
+
+		ev:   NewEvents(),
+		done: make(chan struct{}),
 	}
 
 	tp, err := textproto.Dial("tcp", address)
@@ -107,7 +111,7 @@ func (c *Connection) readLoop() {
 			break
 		}
 
-		// dispatch this message
-		ParseMessage(line)
+		msg := ParseMessage(line)
+		go c.ev.Dispatch(msg, c)
 	}
 }
