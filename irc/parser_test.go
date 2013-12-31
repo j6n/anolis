@@ -8,29 +8,30 @@ import (
 )
 
 func TestParseMessage(t *testing.T) {
+	src := NewUser("foo!bar@irc.localhost")
 	tests := map[string]*Message{
 		"local join": {
 			Raw:     ":foo!bar@irc.localhost JOIN #foobar",
-			Source:  "foo!bar@irc.localhost",
+			Source:  src,
 			Command: "JOIN",
 			Args:    []string{"#foobar"},
 		},
 		"join": {
 			Raw:     ":foo!bar@irc.localhost JOIN :#foobar",
-			Source:  "foo!bar@irc.localhost",
+			Source:  src,
 			Command: "JOIN",
 			Args:    []string{"#foobar"},
 		},
 		"privmsg": {
 			Raw:     ":foo!bar@irc.localhost PRIVMSG #foobar :hello world",
-			Source:  "foo!bar@irc.localhost",
+			Source:  src,
 			Command: "PRIVMSG",
 			Args:    []string{"#foobar"},
 			Message: "hello world",
 		},
 		"part": {
 			Raw:     ":foo!bar@irc.localhost PART #foobar :bye",
-			Source:  "foo!bar@irc.localhost",
+			Source:  src,
 			Command: "PART",
 			Args:    []string{"#foobar"},
 			Message: "bye",
@@ -49,14 +50,14 @@ func TestParseMessage(t *testing.T) {
 		},
 		"no text": {
 			Raw:     ":irc.localhost 004 museun irc.localhost beware1.6.2 dgikoswx biklmnoprstv",
-			Source:  "irclocalhost",
+			Source:  NewUser("irc.localhost"),
 			Command: "004",
 			Args:    []string{"museun", "irc.localhost", "beware1.6.2", "dgikoswx", "biklmnoprstv"},
 			Message: "",
 		},
 		"many colons": {
 			Raw:     ":foo!bar@irc.localhost PRIVMSG hello :hello world :) for more :colons",
-			Source:  "foo!bar@irc.localhost",
+			Source:  src,
 			Command: "PRIVMSG",
 			Args:    []string{"hello"},
 			Message: "hello world :) for more :colons",

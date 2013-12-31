@@ -10,7 +10,7 @@ func ParseMessage(raw string) *Message {
 	// :source command [args] :message
 	if raw[0] == ':' {
 		if i := strings.Index(raw, " "); i >= -1 {
-			msg.Source = raw[1:i]
+			msg.Source = NewUser(raw[1:i])
 			raw = raw[i+1 : len(raw)]
 		}
 	}
