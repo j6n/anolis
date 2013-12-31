@@ -7,12 +7,6 @@ import (
 	"sync"
 )
 
-// Conn is an abstract connection
-type Conn interface {
-	Close()
-	WaitForClose() <-chan struct{}
-}
-
 // Connection represents a connection to an irc server
 type Connection struct {
 	address string
