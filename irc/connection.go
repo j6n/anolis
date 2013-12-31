@@ -9,8 +9,8 @@ import (
 
 // Connection represents a connection to an irc server
 type Connection struct {
-	address string
-	nick    string
+	address  string
+	nickname string
 
 	conn *textproto.Conn
 	once sync.Once
@@ -70,7 +70,7 @@ func (c *Connection) Nick(nick string) {
 
 // Quit sends the quit command with msg
 func (c *Connection) Quit(msg string) {
-	c.Quit("QUIT :%s", msg)
+	c.Raw("QUIT :%s", msg)
 }
 
 // Raw sends a raw message, f, formatted with args
@@ -86,4 +86,19 @@ func (c *Connection) Privmsg(t, f string, args ...interface{}) {
 // Notice sends a notice message, f, formatted with args to t
 func (c *Connection) Notice(t, f string, args ...interface{}) {
 	c.Raw("NOTICE %s :%s", fmt.Sprintf(f, args...))
+}
+
+func (c *Connection) readLoop() {
+	for {
+		// TODO change this, compiler complains until I use line
+		_, err := c.conn.ReadLine()
+		if err != nil {
+			// log this
+			c.Close()
+			break
+		}
+
+		// parse line
+		// dispatch line
+	}
 }
