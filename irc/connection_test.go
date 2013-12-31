@@ -33,6 +33,6 @@ func (m *MockConn) Notice(t, f string, args ...interface{})  {}
 func (m *MockConn) Do(fn func()) {}
 
 func TestConnection(t *testing.T) {
-	mock := NewMockConn()
+	//mock := NewMockConn()
 	Convey("", t, func() {})
 }
