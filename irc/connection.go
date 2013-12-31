@@ -1,6 +1,7 @@
 package irc
 
 import (
+	"fmt"
 	"log"
 	"net/textproto"
 	"sync"
@@ -54,25 +55,41 @@ func (c *Connection) WaitForClose() <-chan struct{} {
 }
 
 // Join sends the join command for room
-func (c *Connection) Join(room string) {}
+func (c *Connection) Join(room string) {
+	c.Raw("JOIN %s", room)
+}
 
 // Part sends the part command for room
-func (c *Connection) Part(room string) {}
+func (c *Connection) Part(room string) {
+	c.Raw("PART %s", room)
+}
 
 // Kick sends the kick command for user on room with msg
-func (c *Connection) Kick(room, user, msg string) {}
+func (c *Connection) Kick(room, user, msg string) {
+	c.Raw("KICK %s %s :%s", room, user, msg)
+}
 
 // Nick sends the nick command with the new nick
-func (c *Connection) Nick(nick string) {}
+func (c *Connection) Nick(nick string) {
+	c.Raw("NICK %s", nick)
+}
 
 // Quit sends the quit command with msg
-func (c *Connection) Quit(msg string) {}
+func (c *Connection) Quit(msg string) {
+	c.Quit("QUIT :%s", msg)
+}
 
 // Raw sends a raw message, f, formatted with args
-func (c *Connection) Raw(f string, args ...interface{}) {}
+func (c *Connection) Raw(f string, args ...interface{}) {
+	c.conn.Cmd(f, args...)
+}
 
 // Privmsg sends a private message, f, formatted with args to t
-func (c *Connection) Privmsg(t, f string, args ...interface{}) {}
+func (c *Connection) Privmsg(t, f string, args ...interface{}) {
+	c.Raw("PRIVMSG %s :%s", fmt.Sprintf(f, args...))
+}
 
 // Notice sends a notice message, f, formatted with args to t
-func (c *Connection) Notice(t, f string, args ...interface{}) {}
+func (c *Connection) Notice(t, f string, args ...interface{}) {
+	c.Raw("NOTICE %s :%s", fmt.Sprintf(f, args...))
+}
