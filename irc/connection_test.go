@@ -30,6 +30,10 @@ func (m *MockConn) Raw(f string, args ...interface{})        {}
 func (m *MockConn) Privmsg(t, f string, args ...interface{}) {}
 func (m *MockConn) Notice(t, f string, args ...interface{})  {}
 
+func (m *MockConn) Context() Conn {
+	return m
+}
+
 func (m *MockConn) Do(fn func()) {}
 
 func TestConnection(t *testing.T) {

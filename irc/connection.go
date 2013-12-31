@@ -93,6 +93,11 @@ func (c *Connection) Notice(t, f string, args ...interface{}) {
 	c.Raw("NOTICE %s :%s", fmt.Sprintf(f, args...))
 }
 
+// Context returns the Connections context (this pointer)
+func (c *Connection) Context() Conn {
+	return c
+}
+
 func (c *Connection) readLoop() {
 	for {
 		line, err := c.conn.ReadLine()

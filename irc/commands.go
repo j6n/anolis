@@ -11,4 +11,6 @@ type Commands interface {
 	Raw(f string, args ...interface{})
 	Privmsg(t, f string, args ...interface{})
 	Notice(t, f string, args ...interface{})
+
+	Context() Conn
 }
