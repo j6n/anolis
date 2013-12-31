@@ -18,7 +18,7 @@ type Message struct {
 func (m *Message) String() string {
 	buf := bs.NewBufferedString()
 	buf.Add("[%s]", m.Command)
-	if m.Source != nil {
+	if m.Source != "" {
 		buf.Add("%s", m.Source)
 	}
 	if len(m.Args) > 0 {

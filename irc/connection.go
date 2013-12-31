@@ -90,15 +90,14 @@ func (c *Connection) Notice(t, f string, args ...interface{}) {
 
 func (c *Connection) readLoop() {
 	for {
-		// TODO change this, compiler complains until I use line
-		_, err := c.conn.ReadLine()
+		line, err := c.conn.ReadLine()
 		if err != nil {
 			// log this
 			c.Close()
 			break
 		}
 
-		// parse line
-		// dispatch line
+		// dispatch this message
+		ParseMessage(line)
 	}
 }
