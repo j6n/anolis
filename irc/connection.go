@@ -49,4 +49,16 @@ func (c *Connection) Close() {
 }
 
 // WaitForClose returns a channel that'll be closed when the connection closes
-func (c *Connection) WaitForClose() <-chan struct{} { return c.done }
+func (c *Connection) WaitForClose() <-chan struct{} {
+	return c.done
+}
+
+func (c *Connection) Join(room string)            {}
+func (c *Connection) Part(room string)            {}
+func (c *Connection) Kick(room, user, msg string) {}
+func (c *Connection) Nick(nick string)            {}
+func (c *Connection) Quit(msg string)             {}
+
+func (c *Connection) Raw(f string, args ...interface{})     {}
+func (c *Connection) Privmsg(f string, args ...interface{}) {}
+func (c *Connection) Notice(f string, args ...interface{})  {}
