@@ -56,6 +56,13 @@ func (m *MockConn) Do(fn func(), u *User, ev string, args ...string) {
 }
 
 func TestConnection(t *testing.T) {
-	//mock := NewMockConn()
-	Convey("", t, func() {})
+	mock := NewMockConn()
+	Convey("connection should", t, func() {
+		mock.Do(func() { mock.Join("#hello") }, mock.local, "JOIN", "#hello")
+		Convey("add a channel when we join", func() {
+			ch, ok := mock.Channels().Get("#hello")
+			So(ok, ShouldBeTrue)
+			So(ch.Users().Has(mock.local), ShouldBeTrue)
+		})
+	})
 }

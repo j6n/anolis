@@ -61,7 +61,15 @@ func PingEvent(msg *Message, ctx Context) {
 }
 
 // JoinEvent reacts to the 'JOIN' event
-func JoinEvent(msg *Message, ctx Context) {}
+func JoinEvent(msg *Message, ctx Context) {
+	if len(msg.Args) > 0 {
+		ctx.Channels().Add(msg.Args[0])
+		ch, _ := ctx.Channels().Get(msg.Args[0])
+		ch.Users().Add(msg.Source)
+	} else if ch, ok := ctx.Channels().Get(msg.Message); ok {
+		ch.Users().Add(msg.Source)
+	}
+}
 
 // PartEvent reacts to the 'PART' event
 func PartEvent(msg *Message, ctx Context) {}
