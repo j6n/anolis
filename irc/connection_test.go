@@ -47,6 +47,7 @@ func (m *MockConn) Notice(t, f string, args ...interface{})  { m.ev.Dispatch(m.m
 func (m *MockConn) Channels() *Channels { return m.ch }
 func (m *MockConn) Connection() Conn    { return m }
 func (m *MockConn) Commands() Commands  { return m }
+func (m *MockConn) Events() *Events     { return m.ev }
 
 func (m *MockConn) Do(fn func(), u *User, ev string, args ...string) {
 	m.msg = ParseMessage(fmt.Sprintf(

@@ -24,7 +24,7 @@ type Connection struct {
 
 // Dial connects to the address with the nickname
 // and returns a Conn
-func Dial(conf *Configuration) Conn {
+func Dial(conf *Configuration) Context {
 	conn := &Connection{
 		address:  fmt.Sprintf("%s:%d", conf.Hostname, conf.Port),
 		nickname: conf.Nickname,
@@ -48,6 +48,7 @@ func Dial(conf *Configuration) Conn {
 	conn.Raw("NICK %s", conf.Nickname)
 	conn.Raw("USER %s 0 * :%s", conf.Username, conf.Realname)
 
+	go conn.readLoop()
 	return conn
 }
 
@@ -127,6 +128,11 @@ func (c *Connection) Channels() *Channels {
 // Commands returns the Connection's commands
 func (c *Connection) Commands() Commands {
 	return c
+}
+
+// Events returns the Connection's events
+func (c *Connection) Events() *Events {
+	return c.ev
 }
 
 func (c *Connection) readLoop() {
