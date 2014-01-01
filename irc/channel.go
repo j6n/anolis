@@ -22,7 +22,7 @@ func NewChannel(name string) *Channel {
 
 // Users returns the user collection for the channel
 func (c *Channel) Users() *Users {
-	return c.Users()
+	return c.users
 }
 
 // Topic sets the channels' topic to 't'
