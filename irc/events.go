@@ -20,6 +20,7 @@ func NewEvents() *Events {
 	ev := &Events{m: make(map[string][]Event)}
 
 	// default events
+	ev.Add("PING", PingEvent)
 	ev.Add("JOIN", JoinEvent)
 	ev.Add("PART", PartEvent)
 	ev.Add("QUIT", QuitEvent)
@@ -27,6 +28,7 @@ func NewEvents() *Events {
 	ev.Add("NICK", NickEvent)
 	ev.Add("TOPIC", TopicEvent)
 	ev.Add("ERROR", ErrorEvent)
+	ev.Add("PRIVMSG", PrivmsgEvent)
 
 	return ev
 }
@@ -60,7 +62,7 @@ func PingEvent(msg *Message, ctx Context) {
 	ctx.Commands().Raw("PONG %s", msg.Message)
 }
 
-// JoinEvent reacts to the 'JOIN' event
+// JoinEvent updates the channel user list when a user joins
 func JoinEvent(msg *Message, ctx Context) {
 	if len(msg.Args) > 0 {
 		ctx.Channels().Add(msg.Args[0])
@@ -71,7 +73,7 @@ func JoinEvent(msg *Message, ctx Context) {
 	}
 }
 
-// PartEvent reacts to the 'PART' event
+// PartEvent updates the channel user list when a user leaves
 func PartEvent(msg *Message, ctx Context) {
 	if ctx.Connection().CurrentNick() == msg.Source.Nickname {
 		ctx.Channels().Remove(msg.Args[0])
@@ -80,7 +82,7 @@ func PartEvent(msg *Message, ctx Context) {
 	}
 }
 
-// KickEvent reacts to the 'KICK' event
+// KickEvent updates the channel user list when a kick happens
 func KickEvent(msg *Message, ctx Context) {
 	kickee, room := lastString(msg.Args), msg.Args[0]
 	if ctx.Connection().CurrentNick() == kickee {
@@ -90,14 +92,14 @@ func KickEvent(msg *Message, ctx Context) {
 	}
 }
 
-// QuitEvent reacts to the 'QUIT' event
+// QuitEvent updates the channels user list when a user quits
 func QuitEvent(msg *Message, ctx Context) {
 	ctx.Channels().forEach(msg.Source, func(ch *Channel) {
 		ch.Users().Remove(msg.Source)
 	})
 }
 
-// NickEvent reacts to the 'NICK' event
+// NickEvent updates the user list when a nick change happens
 func NickEvent(msg *Message, ctx Context) {
 	clone, nick := msg.Source.Clone(), msg.Source.Nickname
 	msg.Source.Nickname = msg.Args[0]
@@ -113,10 +115,21 @@ func NickEvent(msg *Message, ctx Context) {
 	})
 }
 
-// TopicEvent reacts to the 'TOPIC' event
+// TopicEvent updates the channel topic when it changes
 func TopicEvent(msg *Message, ctx Context) {
 	if ch, ok := ctx.Channels().Get(msg.Args[0]); ok {
 		ch.Topic(msg.Message)
+	}
+}
+
+// PrivmsgEvent updates the user list when a user speaks
+func PrivmsgEvent(msg *Message, ctx Context) {
+	if msg.Args[0][0] != 35 {
+		return // private message
+	}
+
+	if ch, ok := ctx.Channels().Get(msg.Args[0]); ok {
+		ch.Users().Update(msg.Source.Nickname, msg.Source)
 	}
 }
 
