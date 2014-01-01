@@ -131,5 +131,14 @@ func TestConnection_User(t *testing.T) {
 			So(mock.user.Nickname, ShouldEqual, "baz")
 			So(ch.Users().Has(mock.user), ShouldBeTrue)
 		})
+
+		Convey("when the topic changes", func() {
+			ch, _ := mock.Channels().Get("#hello")
+			mock.Do(func() {
+				mock.Raw(":%s!%s@%s TOPIC #hello :test this",
+					mock.local.Nickname, mock.local.Username, mock.local.Hostname)
+			}, mock.local, "TOPIC", "#hello", ":test this")
+			So(ch.GetTopic(), ShouldEqual, "test this")
+		})
 	})
 }

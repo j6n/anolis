@@ -114,7 +114,11 @@ func NickEvent(msg *Message, ctx Context) {
 }
 
 // TopicEvent reacts to the 'TOPIC' event
-func TopicEvent(msg *Message, ctx Context) {}
+func TopicEvent(msg *Message, ctx Context) {
+	if ch, ok := ctx.Channels().Get(msg.Args[0]); ok {
+		ch.Topic(msg.Message)
+	}
+}
 
 // ErrorEvent handles any 'ERROR's from the server
 func ErrorEvent(msg *Message, ctx Context) {
