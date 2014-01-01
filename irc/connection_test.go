@@ -61,17 +61,20 @@ func TestConnection_LocalUser(t *testing.T) {
 	mock := NewMockConn()
 	Convey("connection should", t, func() {
 		mock.Do(func() { mock.Join("#hello") }, mock.local, "JOIN", "#hello")
+
 		Convey("add a channel when we join", func() {
 			ch, ok := mock.Channels().Get("#hello")
 			So(ok, ShouldBeTrue)
 			So(ch.Users().Has(mock.local), ShouldBeTrue)
 		})
+
 		Convey("remove a channel", func() {
 			Convey("when we part", func() {
 				mock.Do(func() { mock.Part("#hello") }, mock.local, "PART", "#hello", ":byt")
 				_, ok := mock.Channels().Get("#hello")
 				So(ok, ShouldBeFalse)
 			})
+
 			Convey("when we get kicked", func() {
 				mock.Do(func() { mock.Kick("#hello", mock.local.Nickname, "bye") },
 					mock.user, "KICK", "#hello", mock.local.Nickname, ":bye")
@@ -104,6 +107,12 @@ func TestConnection_User(t *testing.T) {
 			ch, _ := mock.Channels().Get("#hello")
 			mock.Do(func() { mock.Kick("#hello", mock.user.Nickname, "bye") },
 				mock.local, "KICK", "#hello", mock.user.Nickname, ":bye")
+			So(ch.Users().Has(mock.user), ShouldBeFalse)
+		})
+
+		Convey("when a user quits", func() {
+			ch, _ := mock.Channels().Get("#hello")
+			mock.Do(func() { mock.Quit("bye") }, mock.user, "QUIT", ":bye")
 			So(ch.Users().Has(mock.user), ShouldBeFalse)
 		})
 	})

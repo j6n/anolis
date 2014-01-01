@@ -91,7 +91,11 @@ func KickEvent(msg *Message, ctx Context) {
 }
 
 // QuitEvent reacts to the 'QUIT' event
-func QuitEvent(msg *Message, ctx Context) {}
+func QuitEvent(msg *Message, ctx Context) {
+	ctx.Channels().forEach(msg.Source, func(ch *Channel) {
+		ch.Users().Remove(msg.Source)
+	})
+}
 
 // NickEvent reacts to the 'NICK' event
 func NickEvent(msg *Message, ctx Context) {}
