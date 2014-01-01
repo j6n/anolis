@@ -142,3 +142,39 @@ func TestConnection_User(t *testing.T) {
 		})
 	})
 }
+
+func TestConnection_Channels(t *testing.T) {
+	mock := NewMockConn()
+	Convey("connection should update channels", t, func() {
+		mock.Do(func() { mock.Join("#hello") }, mock.local, "JOIN", "#hello")
+		mock.Do(func() { mock.Join("#test") }, mock.local, "JOIN", "#test")
+		mock.Do(func() { mock.Join("#world") }, mock.local, "JOIN", "#world")
+
+		mock.Do(func() { mock.Join("#hello") }, mock.user, "JOIN", ":#hello")
+		mock.Do(func() { mock.Join("#test") }, mock.user, "JOIN", ":#test")
+		mock.Do(func() { mock.Join("#world") }, mock.user, "JOIN", ":#world")
+
+		Convey("when a user quits", func() {
+			mock.Do(func() { mock.Quit("bye") }, mock.user, "QUIT", ":bye")
+			a, _ := mock.Channels().Get("#hello")
+			c, _ := mock.Channels().Get("#test")
+			b, _ := mock.Channels().Get("#world")
+
+			So(a.Users().Has(mock.user), ShouldBeFalse)
+			So(b.Users().Has(mock.user), ShouldBeFalse)
+			So(c.Users().Has(mock.user), ShouldBeFalse)
+		})
+
+		Convey("when a user changes nick", func() {
+			mock.Do(func() { mock.Nick("baz") }, mock.user, "NICK", "baz")
+			a, _ := mock.Channels().Get("#hello")
+			c, _ := mock.Channels().Get("#test")
+			b, _ := mock.Channels().Get("#world")
+
+			So(mock.user.Nickname, ShouldEqual, "baz")
+			So(a.Users().Has(mock.user), ShouldBeTrue)
+			So(b.Users().Has(mock.user), ShouldBeTrue)
+			So(c.Users().Has(mock.user), ShouldBeTrue)
+		})
+	})
+}
