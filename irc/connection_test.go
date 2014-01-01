@@ -31,6 +31,8 @@ func (m *MockConn) Close() {}
 // No-op
 func (m *MockConn) WaitForClose() <-chan struct{} { return nil }
 
+func (m *MockConn) CurrentNick() string { return m.local.Nickname }
+
 func (m *MockConn) Join(room string)            { m.ev.Dispatch(m.msg, m) }
 func (m *MockConn) Part(room string)            { m.ev.Dispatch(m.msg, m) }
 func (m *MockConn) Kick(room, user, msg string) { m.ev.Dispatch(m.msg, m) }
@@ -63,6 +65,11 @@ func TestConnection(t *testing.T) {
 			ch, ok := mock.Channels().Get("#hello")
 			So(ok, ShouldBeTrue)
 			So(ch.Users().Has(mock.local), ShouldBeTrue)
+		})
+		Convey("remove a channel when we part", func() {
+			mock.Do(func() { mock.Part("#hello") }, mock.local, "PART", "#hello", ":byt")
+			_, ok := mock.Channels().Get("#hello")
+			So(ok, ShouldBeFalse)
 		})
 	})
 }

@@ -60,6 +60,11 @@ func (c *Connection) WaitForClose() <-chan struct{} {
 	return c.done
 }
 
+// CurrentNick returns the local users' nickname
+func (c *Connection) CurrentNick() string {
+	return c.nickname
+}
+
 // Join sends the join command for room
 func (c *Connection) Join(room string) {
 	c.Raw("JOIN %s", room)

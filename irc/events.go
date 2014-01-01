@@ -72,7 +72,13 @@ func JoinEvent(msg *Message, ctx Context) {
 }
 
 // PartEvent reacts to the 'PART' event
-func PartEvent(msg *Message, ctx Context) {}
+func PartEvent(msg *Message, ctx Context) {
+	if ctx.Connection().CurrentNick() == msg.Source.Nickname {
+		ctx.Channels().Remove(msg.Args[0])
+	} else if ch, ok := ctx.Channels().Get(msg.Args[0]); ok {
+		ch.Users().Remove(msg.Source)
+	}
+}
 
 // KickEvent reacts to the 'KICK' event
 func KickEvent(msg *Message, ctx Context) {}
