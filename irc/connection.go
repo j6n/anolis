@@ -24,10 +24,10 @@ type Connection struct {
 
 // Dial connects to the address with the nickname
 // and returns a Conn
-func Dial(address, nickname string) Conn {
+func Dial(conf *Configuration) Conn {
 	conn := &Connection{
-		address:  address,
-		nickname: nickname,
+		address:  fmt.Sprintf("%s:%d", conf.Hostname, conf.Port),
+		nickname: conf.Nickname,
 
 		ch: &Channels{m: make(map[string]*Channel)},
 		ev: NewEvents(),
@@ -35,16 +35,18 @@ func Dial(address, nickname string) Conn {
 		done: make(chan struct{}),
 	}
 
-	tp, err := textproto.Dial("tcp", address)
+	tp, err := textproto.Dial("tcp", conn.address)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	conn.conn = tp
-	// TODO send password
-	conn.Raw("NICK %s", nickname)
-	// TODO use username and realname here
-	conn.Raw("USER %s 0 * :%s", nickname, nickname, nickname)
+	if conf.Password != "" {
+		conn.Raw("PASS %s", conf.Password)
+	}
+
+	conn.Raw("NICK %s", conf.Nickname)
+	conn.Raw("USER %s 0 * :%s", conf.Username, conf.Realname)
 
 	return conn
 }

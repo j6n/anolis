@@ -7,7 +7,6 @@ type Configuration struct {
 	Password string
 
 	Nickname, Username, Realname string
-	Alternative                  string
 }
 
 // NewConfiguration returns a new, default configuration
@@ -20,7 +19,6 @@ func NewConfiguration() *Configuration {
 
 	c.Username = c.Nickname
 	c.Realname = c.Nickname
-	c.Alternative = c.Nickname + "_"
 
 	return c
 }
