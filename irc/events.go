@@ -98,7 +98,15 @@ func QuitEvent(msg *Message, ctx Context) {
 }
 
 // NickEvent reacts to the 'NICK' event
-func NickEvent(msg *Message, ctx Context) {}
+func NickEvent(msg *Message, ctx Context) {
+	clone, nick := msg.Source.Clone(), msg.Source.Nickname
+	msg.Source.Nickname = msg.Args[0]
+
+	ctx.Channels().forEach(clone, func(ch *Channel) {
+		ch.Users().RemoveName(nick)
+		ch.Users().Add(msg.Source)
+	})
+}
 
 // TopicEvent reacts to the 'TOPIC' event
 func TopicEvent(msg *Message, ctx Context) {}

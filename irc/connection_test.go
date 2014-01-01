@@ -115,5 +115,12 @@ func TestConnection_User(t *testing.T) {
 			mock.Do(func() { mock.Quit("bye") }, mock.user, "QUIT", ":bye")
 			So(ch.Users().Has(mock.user), ShouldBeFalse)
 		})
+
+		Convey("when a user changes names", func() {
+			ch, _ := mock.Channels().Get("#hello")
+			mock.Do(func() { mock.Nick("baz") }, mock.user, "NICK", "baz")
+			So(mock.user.Nickname, ShouldEqual, "baz")
+			So(ch.Users().Has(mock.user), ShouldBeTrue)
+		})
 	})
 }
