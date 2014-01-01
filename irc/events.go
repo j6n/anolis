@@ -81,7 +81,14 @@ func PartEvent(msg *Message, ctx Context) {
 }
 
 // KickEvent reacts to the 'KICK' event
-func KickEvent(msg *Message, ctx Context) {}
+func KickEvent(msg *Message, ctx Context) {
+	kickee, room := lastString(msg.Args), msg.Args[0]
+	if ctx.Connection().CurrentNick() == kickee {
+		ctx.Channels().Remove(room)
+	} else if ch, ok := ctx.Channels().Get(room); ok {
+		ch.Users().RemoveName(kickee)
+	}
+}
 
 // QuitEvent reacts to the 'QUIT' event
 func QuitEvent(msg *Message, ctx Context) {}
@@ -96,3 +103,6 @@ func TopicEvent(msg *Message, ctx Context) {}
 func ErrorEvent(msg *Message, ctx Context) {
 	log.Fatalln(msg)
 }
+
+// helpers
+func lastString(s []string) string { return s[len(s)-1] }

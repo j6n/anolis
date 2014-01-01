@@ -33,11 +33,11 @@ func (m *MockConn) WaitForClose() <-chan struct{} { return nil }
 
 func (m *MockConn) CurrentNick() string { return m.local.Nickname }
 
-func (m *MockConn) Join(room string)            { m.ev.Dispatch(m.msg, m) }
-func (m *MockConn) Part(room string)            { m.ev.Dispatch(m.msg, m) }
-func (m *MockConn) Kick(room, user, msg string) { m.ev.Dispatch(m.msg, m) }
-func (m *MockConn) Nick(nick string)            { m.ev.Dispatch(m.msg, m) }
-func (m *MockConn) Quit(msg string)             { m.ev.Dispatch(m.msg, m) }
+func (m *MockConn) Join(room string)    { m.ev.Dispatch(m.msg, m) }
+func (m *MockConn) Part(room string)    { m.ev.Dispatch(m.msg, m) }
+func (m *MockConn) Kick(r, u, a string) { m.ev.Dispatch(m.msg, m) }
+func (m *MockConn) Nick(nick string)    { m.ev.Dispatch(m.msg, m) }
+func (m *MockConn) Quit(msg string)     { m.ev.Dispatch(m.msg, m) }
 
 func (m *MockConn) Raw(f string, args ...interface{})        { m.ev.Dispatch(m.msg, m) }
 func (m *MockConn) Privmsg(t, f string, args ...interface{}) { m.ev.Dispatch(m.msg, m) }
@@ -66,10 +66,18 @@ func TestConnection(t *testing.T) {
 			So(ok, ShouldBeTrue)
 			So(ch.Users().Has(mock.local), ShouldBeTrue)
 		})
-		Convey("remove a channel when we part", func() {
-			mock.Do(func() { mock.Part("#hello") }, mock.local, "PART", "#hello", ":byt")
-			_, ok := mock.Channels().Get("#hello")
-			So(ok, ShouldBeFalse)
+		Convey("remove a channel", func() {
+			Convey("when we part", func() {
+				mock.Do(func() { mock.Part("#hello") }, mock.local, "PART", "#hello", ":byt")
+				_, ok := mock.Channels().Get("#hello")
+				So(ok, ShouldBeFalse)
+			})
+			Convey("when we get kicked", func() {
+				mock.Do(func() { mock.Kick("#hello", mock.local.Nickname, "bye") },
+					mock.user, "KICK", "#hello", mock.local.Nickname, ":bye")
+				_, ok := mock.Channels().Get("#hello")
+				So(ok, ShouldBeFalse)
+			})
 		})
 	})
 }
