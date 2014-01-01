@@ -102,6 +102,11 @@ func NickEvent(msg *Message, ctx Context) {
 	clone, nick := msg.Source.Clone(), msg.Source.Nickname
 	msg.Source.Nickname = msg.Args[0]
 
+	// update local, if its us
+	if clone.Nickname == ctx.Connection().CurrentNick() {
+		ctx.Connection().UpdateNick(msg.Args[0])
+	}
+
 	ctx.Channels().forEach(clone, func(ch *Channel) {
 		ch.Users().RemoveName(nick)
 		ch.Users().Add(msg.Source)

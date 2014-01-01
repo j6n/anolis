@@ -32,6 +32,7 @@ func (m *MockConn) Close() {}
 func (m *MockConn) WaitForClose() <-chan struct{} { return nil }
 
 func (m *MockConn) CurrentNick() string { return m.local.Nickname }
+func (m *MockConn) UpdateNick(s string) { m.local.Nickname = s }
 
 func (m *MockConn) Join(room string)    { m.ev.Dispatch(m.msg, m) }
 func (m *MockConn) Part(room string)    { m.ev.Dispatch(m.msg, m) }
@@ -81,6 +82,14 @@ func TestConnection_LocalUser(t *testing.T) {
 				_, ok := mock.Channels().Get("#hello")
 				So(ok, ShouldBeFalse)
 			})
+		})
+
+		Convey("update our nickname", func() {
+			mock.Do(func() { mock.Nick("anolis_") }, mock.local, "NICK", "anolis_")
+			So(mock.CurrentNick(), ShouldEqual, "anolis_")
+			ch, ok := mock.Channels().Get("#hello")
+			So(ok, ShouldBeTrue)
+			So(ch.Users().Has(mock.local), ShouldBeTrue)
 		})
 	})
 }

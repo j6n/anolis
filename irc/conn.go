@@ -5,4 +5,5 @@ type Conn interface {
 	Close()
 	WaitForClose() <-chan struct{}
 	CurrentNick() string
+	UpdateNick(string)
 }

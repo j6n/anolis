@@ -18,6 +18,8 @@ type Connection struct {
 	conn *textproto.Conn
 	once sync.Once
 	done chan struct{}
+
+	sync.RWMutex // TODO use this to make us thread-safe
 }
 
 // Dial connects to the address with the nickname
@@ -63,6 +65,11 @@ func (c *Connection) WaitForClose() <-chan struct{} {
 // CurrentNick returns the local users' nickname
 func (c *Connection) CurrentNick() string {
 	return c.nickname
+}
+
+// UpdateNick updates the connections nickname
+func (c *Connection) UpdateNick(s string) {
+	c.nickname = s
 }
 
 // Join sends the join command for room
