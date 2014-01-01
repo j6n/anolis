@@ -44,7 +44,8 @@ func (u *Users) Update(nick string, user *User) {
 	u.Lock()
 	defer u.Unlock()
 
-	u.m[nick] = user // TODO cache this
+	delete(u.m, user.Nickname) // BUG is this right?
+	u.m[nick] = user           // TODO cache this
 }
 
 // Remove removes the user from the collection
