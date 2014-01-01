@@ -45,7 +45,7 @@ func (c *Channels) GetNames() []string {
 	defer c.RUnlock()
 
 	out := make([]string, 0, len(c.m))
-	for k, _ := range c.m {
+	for k := range c.m {
 		out = append(out, k)
 	}
 	return out

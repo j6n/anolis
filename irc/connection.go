@@ -13,6 +13,7 @@ type Connection struct {
 	nickname string
 
 	ev *Events
+	ch *Channels
 
 	conn *textproto.Conn
 	once sync.Once
@@ -26,7 +27,9 @@ func Dial(address, nickname string) Conn {
 		address:  address,
 		nickname: nickname,
 
-		ev:   NewEvents(),
+		ch: &Channels{m: make(map[string]*Channel)},
+		ev: NewEvents(),
+
 		done: make(chan struct{}),
 	}
 
@@ -97,8 +100,18 @@ func (c *Connection) Notice(t, f string, args ...interface{}) {
 	c.Raw("NOTICE %s :%s", fmt.Sprintf(f, args...))
 }
 
-// Context returns the Connections context (this pointer)
-func (c *Connection) Context() Conn {
+// Connection returns the Connection's context (this pointer)
+func (c *Connection) Connection() Conn {
+	return c
+}
+
+// Channels returns the Connection's channels
+func (c *Connection) Channels() *Channels {
+	return c.ch
+}
+
+// Commands returns the Connection's commands
+func (c *Connection) Commands() Commands {
 	return c
 }
 

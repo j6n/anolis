@@ -7,7 +7,7 @@ import (
 )
 
 // Event represents an IRC event
-type Event func(msg *Message, cmd Commands)
+type Event func(msg *Message, ctx Context)
 
 // Events holds a collection of events
 type Events struct {
@@ -42,13 +42,13 @@ func (e *Events) Add(cmd string, fn Event) {
 
 // Dispatch finds each Event that matches msg's command and invokes it
 // with the Message and the Conn
-func (e *Events) Dispatch(msg *Message, cmd Commands) {
+func (e *Events) Dispatch(msg *Message, ctx Context) {
 	e.RLock()
 	defer e.RUnlock()
 
 	if evs, ok := e.m[strings.ToUpper(msg.Command)]; ok {
 		for _, ev := range evs {
-			ev(msg, cmd)
+			ev(msg, ctx)
 		}
 	}
 }
@@ -56,29 +56,29 @@ func (e *Events) Dispatch(msg *Message, cmd Commands) {
 // Default events
 
 // PingEvent replies to a 'PONG' from the server
-func PingEvent(msg *Message, cmd Commands) {
-	cmd.Raw("PONG %s", msg.Message)
+func PingEvent(msg *Message, ctx Context) {
+	ctx.Commands().Raw("PONG %s", msg.Message)
 }
 
 // JoinEvent reacts to the 'JOIN' event
-func JoinEvent(msg *Message, cmd Commands) {}
+func JoinEvent(msg *Message, ctx Context) {}
 
 // PartEvent reacts to the 'PART' event
-func PartEvent(msg *Message, cmd Commands) {}
+func PartEvent(msg *Message, ctx Context) {}
 
 // KickEvent reacts to the 'KICK' event
-func KickEvent(msg *Message, cmd Commands) {}
+func KickEvent(msg *Message, ctx Context) {}
 
 // QuitEvent reacts to the 'QUIT' event
-func QuitEvent(msg *Message, cmd Commands) {}
+func QuitEvent(msg *Message, ctx Context) {}
 
 // NickEvent reacts to the 'NICK' event
-func NickEvent(msg *Message, cmd Commands) {}
+func NickEvent(msg *Message, ctx Context) {}
 
 // TopicEvent reacts to the 'TOPIC' event
-func TopicEvent(msg *Message, cmd Commands) {}
+func TopicEvent(msg *Message, ctx Context) {}
 
 // ErrorEvent handles any 'ERROR's from the server
-func ErrorEvent(msg *Message, cmd Commands) {
+func ErrorEvent(msg *Message, ctx Context) {
 	log.Fatalln(msg)
 }
