@@ -30,6 +30,7 @@ func (c *Channel) Topic(t string) {
 	c.Lock()
 	defer c.Unlock()
 
+	log.Debugf("setting topic for %s to '%s'", c.Name, t)
 	c.topic = t
 }
 

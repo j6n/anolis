@@ -13,6 +13,7 @@ func (c *Channels) Add(name string) {
 	c.Lock()
 	defer c.Unlock()
 
+	log.Debugf("adding channel '%s'", name)
 	c.m[name] = NewChannel(name) // TODO cache this
 }
 
@@ -21,6 +22,7 @@ func (c *Channels) Remove(name string) {
 	c.Lock()
 	defer c.Unlock()
 
+	log.Debugf("remove channel '%s'", name)
 	delete(c.m, name)
 }
 

@@ -1,7 +1,6 @@
 package irc
 
 import (
-	"log"
 	"strings"
 	"sync"
 )
@@ -39,6 +38,7 @@ func (e *Events) Add(cmd string, fn Event) {
 	defer e.Unlock()
 
 	c := strings.ToUpper(cmd)
+	log.Debugf("adding event: %c", c)
 	e.m[c] = append(e.m[c], fn)
 }
 
@@ -49,7 +49,8 @@ func (e *Events) Dispatch(msg *Message, ctx Context) {
 	defer e.RUnlock()
 
 	if evs, ok := e.m[strings.ToUpper(msg.Command)]; ok {
-		for _, ev := range evs {
+		for k, ev := range evs {
+			log.Debugf("dispatching to: %s -> %s", k, msg.String())
 			ev(msg, ctx)
 		}
 	}
@@ -65,20 +66,27 @@ func PingEvent(msg *Message, ctx Context) {
 // JoinEvent updates the channel user list when a user joins
 func JoinEvent(msg *Message, ctx Context) {
 	if len(msg.Args) > 0 {
+		// it was us that joined
 		ctx.Channels().Add(msg.Args[0])
+		log.Debugf("creating new channel '%s'", msg.Args[0])
 		ch, _ := ctx.Channels().Get(msg.Args[0])
 		ch.Users().Add(msg.Source)
+		log.Debugf("adding user '%s' to '%s'", msg.Source.Nickname, ch.Name)
 	} else if ch, ok := ctx.Channels().Get(msg.Message); ok {
 		ch.Users().Add(msg.Source)
+		log.Debugf("adding user '%s' to '%s'", msg.Source.Nickname, ch.Name)
 	}
 }
 
 // PartEvent updates the channel user list when a user leaves
 func PartEvent(msg *Message, ctx Context) {
 	if ctx.Connection().CurrentNick() == msg.Source.Nickname {
+		// it was us that left
 		ctx.Channels().Remove(msg.Args[0])
+		log.Debugf("removing channel '%s'", msg.Args)
 	} else if ch, ok := ctx.Channels().Get(msg.Args[0]); ok {
 		ch.Users().Remove(msg.Source)
+		log.Debugf("removing '%s' from channel '%s'", msg.Source.Nickname, ch.Name)
 	}
 }
 
@@ -86,9 +94,12 @@ func PartEvent(msg *Message, ctx Context) {
 func KickEvent(msg *Message, ctx Context) {
 	kickee, room := lastString(msg.Args), msg.Args[0]
 	if ctx.Connection().CurrentNick() == kickee {
+		// we were kicked
 		ctx.Channels().Remove(room)
+		log.Debugf("removing channel '%s'", room)
 	} else if ch, ok := ctx.Channels().Get(room); ok {
 		ch.Users().RemoveName(kickee)
+		log.Debugf("removing '%s' from channel '%s'", kickee, room)
 	}
 }
 
@@ -96,6 +107,7 @@ func KickEvent(msg *Message, ctx Context) {
 func QuitEvent(msg *Message, ctx Context) {
 	ctx.Channels().forEach(msg.Source, func(ch *Channel) {
 		ch.Users().Remove(msg.Source)
+		log.Debugf("removing '%s' from channel '%s'", msg.Source.Nickname, ch.Name)
 	})
 }
 
@@ -112,6 +124,7 @@ func NickEvent(msg *Message, ctx Context) {
 	ctx.Channels().forEach(clone, func(ch *Channel) {
 		ch.Users().RemoveName(nick)
 		ch.Users().Add(msg.Source)
+		log.Debugf("changing nick '%s' to '%s' on from channel '%s'", nick, msg.Source.Nickname, ch.Name)
 	})
 }
 
@@ -135,7 +148,7 @@ func PrivmsgEvent(msg *Message, ctx Context) {
 
 // ErrorEvent handles any 'ERROR's from the server
 func ErrorEvent(msg *Message, ctx Context) {
-	log.Fatalln(msg)
+	log.Fatalf(msg.String())
 }
 
 // helpers

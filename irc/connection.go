@@ -2,7 +2,6 @@ package irc
 
 import (
 	"fmt"
-	"log"
 	"net/textproto"
 	"sync"
 )
@@ -35,9 +34,10 @@ func Dial(conf *Configuration) Context {
 		done: make(chan struct{}),
 	}
 
+	log.Debugf("connecting to %s", conn.address)
 	tp, err := textproto.Dial("tcp", conn.address)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf(err.Error())
 	}
 
 	conn.conn = tp
@@ -48,6 +48,7 @@ func Dial(conf *Configuration) Context {
 	conn.Raw("NICK %s", conf.Nickname)
 	conn.Raw("USER %s 0 * :%s", conf.Username, conf.Realname)
 
+	log.Debugf("starting readLoop")
 	go conn.readLoop()
 	return conn
 }
@@ -55,6 +56,7 @@ func Dial(conf *Configuration) Context {
 // Close closes the connection
 func (c *Connection) Close() {
 	c.once.Do(func() {
+		log.Debugf("closing connection")
 		c.conn.Close()
 		close(c.done)
 	})
@@ -72,6 +74,7 @@ func (c *Connection) CurrentNick() string {
 
 // UpdateNick updates the connections nickname
 func (c *Connection) UpdateNick(s string) {
+	log.Debugf("updating nickname to: %s", s)
 	c.nickname = s
 }
 
@@ -100,11 +103,6 @@ func (c *Connection) Quit(msg string) {
 	c.Raw("QUIT :%s", msg)
 }
 
-// Raw sends a raw message, f, formatted with args
-func (c *Connection) Raw(f string, args ...interface{}) {
-	c.conn.Cmd(f, args...)
-}
-
 // Privmsg sends a private message, f, formatted with args to t
 func (c *Connection) Privmsg(t, f string, args ...interface{}) {
 	c.Raw("PRIVMSG %s :%s", fmt.Sprintf(f, args...))
@@ -113,6 +111,12 @@ func (c *Connection) Privmsg(t, f string, args ...interface{}) {
 // Notice sends a notice message, f, formatted with args to t
 func (c *Connection) Notice(t, f string, args ...interface{}) {
 	c.Raw("NOTICE %s :%s", fmt.Sprintf(f, args...))
+}
+
+// Raw sends a raw message, f, formatted with args
+func (c *Connection) Raw(f string, args ...interface{}) {
+	log.Debugf(">> "+f, args...)
+	c.conn.Cmd(f, args...)
 }
 
 // Connection returns the Connection's context (this pointer)
@@ -139,12 +143,13 @@ func (c *Connection) readLoop() {
 	for {
 		line, err := c.conn.ReadLine()
 		if err != nil {
-			// log this
 			c.Close()
+			log.Fatalf(err.Error())
 			break
 		}
 
 		msg := ParseMessage(line)
+		log.Debugf("<< %s", msg)
 		go c.ev.Dispatch(msg, c)
 	}
 }
