@@ -38,7 +38,7 @@ func (e *Events) Add(cmd string, fn Event) {
 	defer e.Unlock()
 
 	c := strings.ToUpper(cmd)
-	log.Debugf("adding event: %c", c)
+	log.Debugf("adding event: %s", c)
 	e.m[c] = append(e.m[c], fn)
 }
 
@@ -49,8 +49,8 @@ func (e *Events) Dispatch(msg *Message, ctx Context) {
 	defer e.RUnlock()
 
 	if evs, ok := e.m[strings.ToUpper(msg.Command)]; ok {
-		for k, ev := range evs {
-			log.Debugf("dispatching to: %s -> %s", k, msg.String())
+		for _, ev := range evs {
+			log.Debugf("dispatching to: %s -> %s", msg.Command, msg.String())
 			ev(msg, ctx)
 		}
 	}

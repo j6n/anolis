@@ -7,6 +7,8 @@ import (
 )
 
 func TestChannels(t *testing.T) {
+	InitLogger(true)
+
 	ch := &Channels{m: make(map[string]*Channel)}
 
 	Convey("channels should", t, func() {
