@@ -24,6 +24,7 @@ type Connection struct {
 // Dial connects to the address with the nickname
 // and returns a Conn
 func Dial(conf *Configuration) Context {
+	initLogger(conf.Verbose)
 	conn := &Connection{
 		address:  fmt.Sprintf("%s:%d", conf.Hostname, conf.Port),
 		nickname: conf.Nickname,

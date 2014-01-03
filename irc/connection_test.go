@@ -17,7 +17,7 @@ type MockConn struct {
 }
 
 func NewMockConn() *MockConn {
-	InitLogger(true)
+	log = &NoopLogger{}
 	return &MockConn{
 		ch:    &Channels{m: make(map[string]*Channel)},
 		local: NewUser("anolis!bot@i.am.a.bot"),

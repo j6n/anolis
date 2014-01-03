@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	irc.InitLogger(true)
-
 	conf := irc.NewConfiguration()
+	// turn on verbose logging
+	conf.Verbose = true
 	conn := irc.Dial(conf)
 
 	conn.Events().Add("001", func(m *irc.Message, ctx irc.Context) {

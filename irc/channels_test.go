@@ -7,10 +7,9 @@ import (
 )
 
 func TestChannels(t *testing.T) {
-	InitLogger(true)
+	log = &NoopLogger{}
 
 	ch := &Channels{m: make(map[string]*Channel)}
-
 	Convey("channels should", t, func() {
 		Convey("add a channel", func() {
 			ch.Add("#foo")

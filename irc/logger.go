@@ -10,8 +10,7 @@ import (
 
 var log logger.Logger
 
-// InitLogger creates a new logger, takes optional debug boolean
-func InitLogger(b ...bool) {
+func initLogger(b ...bool) {
 	if len(b) > 0 && !b[0] {
 		log = logger.NewConsoleLogger(logger.INFO)
 		return

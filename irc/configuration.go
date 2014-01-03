@@ -7,6 +7,8 @@ type Configuration struct {
 	Password string
 
 	Nickname, Username, Realname string
+
+	Verbose bool
 }
 
 // NewConfiguration returns a new, default configuration
@@ -15,6 +17,7 @@ func NewConfiguration() *Configuration {
 		Hostname: "localhost",
 		Port:     6667,
 		Nickname: "anolis",
+		Verbose:  false,
 	}
 
 	c.Username = c.Nickname
