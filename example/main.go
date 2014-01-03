@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	irc.InitLogger(true)
+
 	conf := irc.NewConfiguration()
 	conn := irc.Dial(conf)
 
